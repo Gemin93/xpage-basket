@@ -1,10 +1,31 @@
 doctype html
-html(lang="en")
+html(lang="ru")
   head
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    title Busket
+    title Basket
     link(rel="stylesheet", href="css/main.min.css")
   body
-    h1 Busket Page
+    header.header 
+      .container 
+        .header__top 
+          .header__menu 
+            a.logo(href='#')
+              img.logo__img(src='images/logo.svg', alt='Logo')
+            nav.nav 
+              ul.nav__menu 
+                li.nav__menu-item играть
+                li.nav__menu-item смотреть
+                li.nav__menu-item учиться
+                li.nav__menu-item мероприятия
+          .header__buttons 
+            .header__buttons-menu 
+              .burger 
+                span
+                span 
+                span 
+              p.header__buttons-text меню
+            .header__buttons-user 
+              p.header__buttons-text геннадий п.
+              img.header__buttons-avatar(src='images/avatar.jpg', alt='Avatar')
     script(src="js/main.min.js")

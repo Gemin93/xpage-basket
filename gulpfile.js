@@ -1,83 +1,112 @@
 const gulp = require("gulp");
-const pug = require("gulp-pug");
 const sass = require("gulp-sass")(require("sass"));
-const sourcemaps = require("gulp-sourcemaps");
-const postcss = require("gulp-postcss");
-const autoprefixer = require("autoprefixer");
-const cleanCss = require("gulp-clean-css");
-const rename = require("gulp-rename");
+const uglify = require("gulp-uglify");
 const concat = require("gulp-concat");
+const cleanCSS = require("gulp-clean-css");
+const rename = require("gulp-rename");
+const sourcemaps = require("gulp-sourcemaps");
+const pug = require("gulp-pug");
 const browserSync = require("browser-sync").create();
+var imagemin = require("gulp-imagemin");
 
 // Пути к файлам
 const paths = {
+  styles: {
+    src: "src/sass/**/*.scss",
+    dest: "dist/css",
+  },
+  images: {
+    src: "src/images/**/*.+(png|jpg|jpeg|gif|svg)",
+    dest: "dist/images",
+  },
+  scripts: {
+    src: "src/js/**/*.js",
+    dest: "dist/js",
+  },
+  fonts: {
+    src: "fonts/fonts/**/*",
+    dest: "dist/fonts",
+  },
   pug: {
     src: "src/pug/**/*.pug",
     dest: "dist",
   },
-  sass: {
-    src: "src/sass/**/*.scss",
-    dest: "dist/css",
-  },
-  js: {
-    src: "src/js/**/*.js",
-    dest: "dist/js",
-  },
 };
 
-// Задача для компиляции Pug
-function compilePug() {
+// Задача для обработки стилей
+gulp.task("styles", function () {
   return gulp
-    .src(paths.pug.src)
-    .pipe(pug({ pretty: true }))
-    .pipe(gulp.dest(paths.pug.dest))
-    .pipe(browserSync.stream());
-}
-
-// Задача для компиляции SASS
-function compileSass() {
-  return gulp
-    .src(paths.sass.src)
+    .src(paths.styles.src)
     .pipe(sourcemaps.init())
     .pipe(sass().on("error", sass.logError))
-    .pipe(postcss([autoprefixer()]))
-    .pipe(cleanCss())
+    .pipe(cleanCSS())
     .pipe(rename({ suffix: ".min" }))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest(paths.sass.dest))
-    .pipe(browserSync.stream());
-}
+    .pipe(gulp.dest(paths.styles.dest));
+});
 
-// Задача для копирования JS файлов
-function copyJs() {
+// Задача для обработки изображений
+gulp.task("images", function () {
   return gulp
-    .src(paths.js.src)
-    .pipe(concat("main.js"))
-    .pipe(rename({ suffix: ".min" }))
-    .pipe(gulp.dest(paths.js.dest))
-    .pipe(browserSync.stream());
-}
+    .src(paths.images.src, { encoding: false })
+    .pipe(gulp.dest(paths.images.dest));
+});
 
-// Задача для BrowserSync
-function serve() {
+// Задача для обработки скриптов
+gulp.task("scripts", function () {
+  return gulp
+    .src(paths.scripts.src)
+    .pipe(concat("main.js"))
+    .pipe(uglify())
+    .pipe(rename({ suffix: ".min" }))
+    .pipe(gulp.dest(paths.scripts.dest));
+});
+
+// Задача для копирования шрифтов
+gulp.task("fonts", function () {
+  return gulp.src(paths.fonts.src).pipe(gulp.dest(paths.fonts.dest));
+});
+
+gulp.task("pug", function () {
+  return gulp
+    .src(paths.pug.src)
+    .pipe(
+      pug({
+        pretty: true,
+      })
+    )
+    .pipe(gulp.dest(paths.pug.dest));
+});
+
+// Задача для запуска Browsersync
+gulp.task("browserSync", function () {
   browserSync.init({
     server: {
       baseDir: "./dist",
     },
+    port: 3000,
   });
+});
 
-  gulp.watch(paths.pug.src, compilePug);
-  gulp.watch(paths.sass.src, compileSass);
-  gulp.watch(paths.js.src, copyJs);
-  gulp.watch("dist/*.html").on("change", browserSync.reload);
-}
+// Задача для наблюдения за изменениями
+gulp.task("watch", function () {
+  gulp.watch(paths.styles.src, gulp.series("styles", browserSync.reload));
+  gulp.watch(paths.images.src, gulp.series("images", browserSync.reload));
+  gulp.watch(paths.scripts.src, gulp.series("scripts", browserSync.reload));
+  gulp.watch(paths.fonts.src, gulp.series("fonts", browserSync.reload));
+  gulp.watch(paths.pug.src, gulp.series("pug", browserSync.reload));
+});
 
-// Последовательность задач
-const build = gulp.series(compilePug, compileSass, copyJs, serve);
-
-// Экспорт задач
-exports.compilePug = compilePug;
-exports.compileSass = compileSass;
-exports.copyJs = copyJs;
-exports.serve = serve;
-exports.default = build;
+// Задача по умолчанию
+gulp.task(
+  "default",
+  gulp.series(
+    "styles",
+    "images",
+    "scripts",
+    "fonts",
+    "pug",
+    "browserSync",
+    "watch"
+  )
+);

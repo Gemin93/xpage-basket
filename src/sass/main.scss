@@ -1,0 +1,30 @@
+@font-face {
+  font-family: "Commissioner";
+  src: url("../fonts/Commissioner/Commissioner-Regular.woff2") format("woff2"),
+    url("../fonts/Commissioner/Commissioner-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Commissioner";
+  src: url("../fonts/Commissioner/Commissioner-Bold.woff2") format("woff2"),
+    url("../fonts/Commissioner/Commissioner-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Druk";
+  src: url("../fonts/Druk/DrukWideCyr-Bold.woff2") format("woff2"),
+    url("../fonts/Druk/DrukWideCyr-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+}
+
+body {
+  font-family: "Commissioner", sans-serif;
+}
+
+h1 {
+  font-family: "Druk", sans-serif;
+  color: red;
+}
